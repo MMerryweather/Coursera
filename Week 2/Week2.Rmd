@@ -1,0 +1,202 @@
+---
+title: "Week 2"
+author: "Mathew Merryweather"
+date: "14 July 2015"
+output: html_document
+---
+#Control Structures
+Similar to many other languages. Not recommended for interactive mode. Better to use the *apply functions instead.
+
+* if / else
+* for
+* while
+* break (exit a loop)
+* next (skip iteration of loop)
+* return (exit a function)
+
+##If/Else
+Structure is:
+```{r eval=F}
+if(condition){
+    ## Foo
+}else if(condition2){
+    ## Bar
+}else{
+    ## Boo
+}
+```
+Can assign variables in the loop or as the argument to variable assignment
+
+##For Loops
+Structure is:
+```{r eval = T}
+x = c("a","b","c","d")
+
+#Classic Method
+for(i in 1:4){
+    print(x[i])
+}
+
+#seq_along Method (Creates integer sequence)
+for(i in seq_along(x)){
+    print(x[i])
+}
+
+#Compact Method for single method
+for(i in 1:4) print(x[i])
+```
+
+Useful functions:
+
+* `seq_len`
+* `seq_along`
+* `nrow` and `ncol`
+
+## While Loops
+```{r eval=T}
+#Single condition
+count =0
+while(count<3){
+    print(count)
+    count = count + 1
+}
+
+#Multiple condition
+z = 5
+while(z >= 3 && z <=10){
+    print(z)
+    coin = rbinom(1,1,0.5)
+    if(coin ==1){ #Random Walk
+        z = z +1
+    }else{
+        z = z-1
+    }
+}
+
+```
+
+## Functions
+Of the form:
+```{r eval = F}
+foobar = function(a, b = NULL){
+    #b = Null assigns a default value to the variable b
+    a^2
+    #R automatically returns the last line of code
+}
+
+foobar(2)
+```
+
+Arguments are evaluated lazily. Only evaluated as need. foobar above is *lazy*. foobar won't error even though no `b` argument is passed.
+
+Special argument `...`. allows for extending another function and you don't want to copy the entire argument list.
+Can also be used for generic functions but can pass methods to objects.
+Also used if the number of arguments to be passed is unknown in advance.
+
+```{r eval  = T}
+args(paste)
+# No idea of how many objects you want to paste together
+
+args(cat)
+#Concatencate
+
+#Arguments after the `...` MUST be be named, cannot be partially named. Must be explicit
+```
+
+## Symbol Binding
+
+```{r}
+lm = function(x){x * x
+}
+lm
+```
+How does it know to use the local function instead of the ones in the `stats` package?
+
+R tries to search from the highest order environment then works down
+```{r}
+search()
+```
+
+R however has separate namespaces for objects and functions.
+Packages have no fixed order, so never rely on it!
+
+### Scoping Rules
+R uses lexical scoping over dynamic scoping
+```{r}
+f = function(x,y){
+    x^2 + y / z
+    #z is a free variable!
+}
+```
+
+The values of free variables are searched for in the environment in which the function was defined.
+Every environment has a parent environment except for the empty env. Collections of symbols and values.
+
+R lets you have functions defined *inside other functions*.
+A function can return *another* function as the result which has a different environment.
+
+```{r}
+make.power = function(n){
+    #Constructor
+    pow = function(x){
+        x^n
+    }
+    pow
+}
+
+cube = make.power(3)
+square = make.power(2)
+
+cube(3)
+
+```
+
+The `ls` function is used to explore a functions environment
+
+## Dates and Times
+Dates are represented by the `Date` class
+Time is represented by `POSIXct` or `POSIXlt`
+
+Dates have no times. i.e. days since 1970-01-01
+Times are seconds since then.
+
+```{r}
+x = as.Date("1970-01-01")
+x
+unclass(x)
+unclass(as.Date("1970-01-02"))
+```
+
+## Times in R
+Times have two types.
+POSIX is family of standards.
+
+The `POSIXct` class is essentially an integer representing seconds since the UNIX epoch whilst the `POSIXlt` class is a list.
+the lt class stores day, week, day of year, month etc.
+
+you can coerced between them with the following:
+
+* `as.POSIXlt(x)`
+* `as.POSIXct(x)`
+
+POSIXlt has nice access to date parts.
+
+strptime converts strings to times using a format string,
+
+```{r}
+datestring = c("January 10, 2012 10:40")
+x = strptime(datestring, "%B %d, %Y %H:%M")
+## Just use ?strptime to figure out the format
+class(x)
+```
+
+Make sure you use the same class when trying to perform operations. Date classes handle a lot of the complexities with dates for you.
+
+
+
+
+
+
+
+
+
