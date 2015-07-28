@@ -30,6 +30,29 @@ Five tools:
 
 
 ```{r}
-
+mean(x)
+#must be called immediately after error
+traceback()
 ```
+
+```{r}
+#Deeper Error
+lm(y ~ x)
+traceback()
+```
+
+```{r}
+debug(lm)
+lm(x ~ y)
+```
+
+```{r}
+options(error = recover)
+#GLOBAL SESSION VARIABLE
+read.csv("nosuchfile")
+# Will print call stack
+# Press number to browse function env
+```
+
+
 
