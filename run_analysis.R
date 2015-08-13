@@ -1,4 +1,4 @@
-run_analysis = function() {
+run_analysis = function(output = FALSE) {
     library(data.table)
     library(dplyr)
     library(tidyr)
@@ -60,7 +60,6 @@ run_analysis = function() {
     ## END OF PART 1
     ## -------------
 
-
     ## Summarize data
     setkey(data, activityLabel, subject)
     summaryDataWide = data %>% group_by(activityLabel, subject) %>%
@@ -74,8 +73,11 @@ run_analysis = function() {
     SummaryDataLong[order(subject,activityLabel,measurement,value)]
 
     ## Output and return Tidy Data
-    write.table(
-        SummaryDataLong, file = "run_analysis.txt", append = FALSE, quote = FALSE, sep = ",", row.names = FALSE, col.names = TRUE
-    )
+    if output = TRUE{
+        write.table(
+            SummaryDataLong, file = "run_analysis.txt", append = FALSE, quote = FALSE, sep = ",", row.names = FALSE, col.names = TRUE
+            )
+    }
+
     SummaryDataLong
 }
