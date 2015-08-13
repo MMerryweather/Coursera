@@ -26,3 +26,22 @@ This writes the tidy dataset to a file called `run_analysis.txt` in the current
 working directoy.
 
 #### Output
+run_analysis.txt returns a data.table of dimensions 11880 rows x 4 cols.
+
+* subject
+	- Type: Factor
+	- Levels: 30
+	- Contains the indiviual who performed each activity (anonymized)
+* activity
+	- Type: Factor
+	- Levels: 6
+	- The activity the subject was performing when the measurements were taken
+* measurement
+	- Type: Factor
+	- Levels: 66
+	- The physical measure that was recorded at each time frame
+* value
+	- Type: num
+	- The mean values for each measurement	
+
+
