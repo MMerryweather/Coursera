@@ -27,7 +27,7 @@ run_analysis = function(output = FALSE) {
     setnames(X_test, old = names(X_test), new = features$featureName)
     setnames(X_train, old = names(X_train), new = features$featureName)
     setnames(
-        activityLabels, old = names(activityLabels), new = c("activityID","activityLabel")
+        activityLabels, old = names(activityLabels), new = c("activityID","activity")
     )
 
     ## Create a logical vector for means and std dev then OR them together
@@ -60,24 +60,27 @@ run_analysis = function(output = FALSE) {
     ## END OF PART 1
     ## -------------
 
+
     ## Summarize data
-    setkey(data, activityLabel, subject)
-    summaryDataWide = data %>% group_by(activityLabel, subject) %>%
+    setkey(data, activity, subject)
+    summaryDataWide = data %>% group_by(activity, subject) %>%
         summarise_each(funs(mean))
     rm(data)
 
     ## Generate Tidy Data
     gatherCols = 3:68
     SummaryDataLong = summaryDataWide %>% gather(measurement, value, gatherCols)
-    setcolorder(SummaryDataLong, c("subject", "activityLabel","measurement", "value"))
-    SummaryDataLong[order(subject,activityLabel,measurement,value)]
+    setcolorder(SummaryDataLong, c("subject", "activity","measurement", "value"))
+    SummaryDataLong[order(subject,activity,measurement,value)]
+
+    # Make columns nice factors
+    for (col in 1:3) set (SummaryDataLong, j=col,value = as.factor(SummaryDataLong[[col]]))
 
     ## Output and return Tidy Data
-    if output = TRUE{
+    if (output == TRUE) {
         write.table(
             SummaryDataLong, file = "run_analysis.txt", append = FALSE, quote = FALSE, sep = ",", row.names = FALSE, col.names = TRUE
-            )
+        )
     }
-
     SummaryDataLong
 }
