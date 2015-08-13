@@ -63,7 +63,7 @@ run_analysis = function(output = FALSE) {
 
     ## Summarize data
     setkey(data, activity, subject)
-    summaryDataWide = data %>% group_by(activityLabel, subject) %>%
+    summaryDataWide = data %>% group_by(activity, subject) %>%
         summarise_each(funs(mean))
     rm(data)
 
@@ -72,6 +72,9 @@ run_analysis = function(output = FALSE) {
     SummaryDataLong = summaryDataWide %>% gather(measurement, value, gatherCols)
     setcolorder(SummaryDataLong, c("subject", "activity","measurement", "value"))
     SummaryDataLong[order(subject,activity,measurement,value)]
+
+    # Make columns nice factors
+    for (col in 1:3) set (SummaryDataLong, j=col,value = as.factor(SummaryDataLong[[col]]))
 
     ## Output and return Tidy Data
     if (output == TRUE) {
