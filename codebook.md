@@ -42,6 +42,7 @@ run_analysis.txt returns a data.table of dimensions 11880 rows x 4 cols.
 	- The physical measure that was recorded at each time frame
 * value
 	- Type: num
-	- The mean values for each measurement	
+	- The mean values for each measurement
+	- units: g, standard gravity units	
 
 
