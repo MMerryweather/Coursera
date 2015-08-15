@@ -17,58 +17,56 @@ run_analysis = function(output = FALSE) {
     X_train = data.table(read.table(file = "UCI HAR Dataset/train/X_train.txt"))
 
     ## Add descriptive names to all our variables
-    setnames(
-        features, old = c("V1","V2"), new = c("featureColumn","featureName")
-    )
+    setnames(features, old = c("V1","V2"), new = c("featureColumn","featureName"))
     setnames(subject_test, old = names(subject_test), new = "subject")
     setnames(subject_train, old = names(subject_train), new = "subject")
     setnames(Y_test,old = names(Y_test), new = "activityID")
     setnames(Y_train,old = names(Y_train), new = "activityID")
     setnames(X_test, old = names(X_test), new = features$featureName)
     setnames(X_train, old = names(X_train), new = features$featureName)
-    setnames(
-        activityLabels, old = names(activityLabels), new = c("activityID","activity")
-    )
+    setnames(activityLabels, old = names(activityLabels), new = c("activityID","activity"))
+    rm(features)
 
-    ## Create a logical vector for means and std dev then OR them together
-    means = grepl(pattern = "-mean()",features$featureName, fixed = TRUE)
-    stds = grepl(pattern = "-std()",features$featureName, fixed = TRUE)
-    ## Use | over || as | is vectorized while || isn't
-    meanAndStds = means | stds
-    rm(means, stds, features)
+    ## Helper function to acoid lots of variables floating about
+    ## Returns a data table containing just the cols with means and std devs
+    meansAndStds = function(input){
+        means = select(input, contains("mean"))
+        stds = select(input, contains("std"))
+        meansAndStds = dplyr::bind_cols(means, stds)
+    }
 
     ## select affects cols while subset affects rows
-    X_testSubset = subset(X_test, select = meanAndStds)
-    X_trainSubset = subset(X_train, select = meanAndStds)
-    rm(X_test, X_train, meanAndStds)
+    X_testSubset = meansAndStds(X_test)
+    X_trainSubset = meansAndStds(X_train)
+    rm(X_test, X_train)
 
     ## Create a single testing and training data frame
-    test = cbind(subject_test, X_testSubset, Y_test)
-    train = cbind(subject_train, X_trainSubset, Y_train)
+    test = dplyr::bind_cols(subject_test, X_testSubset, Y_test)
+    train = dplyr::bind_cols(subject_train, X_trainSubset, Y_train)
     rm(subject_test, X_testSubset, Y_test, subject_train, X_trainSubset, Y_train)
 
     ## Merge into one dataset
-    data = rbind(test,train)
+    data = dplyr::bind_rows(test,train)
     rm(test,train)
 
     ## Add Activity Labels and get rid of activityID
-    setkey(activityLabels, activityID)
-    data = merge(data, activityLabels, by = "activityID")
-    data[,activityID:= NULL]
+    data = dplyr::inner_join(data,activityLabels,by="activityID")
+    data = select(data,-activityID)
     rm(activityLabels)
     ## -------------
     ## END OF PART 1
+    ## This is the datset requested in Q4
     ## -------------
 
-
     ## Summarize data
+    data = data.table(data)
     setkey(data, activity, subject)
     summaryDataWide = data %>% group_by(activity, subject) %>%
         summarise_each(funs(mean))
     rm(data)
 
     ## Generate Tidy Data
-    gatherCols = 3:68
+    gatherCols = 3:88
     SummaryDataLong = summaryDataWide %>% gather(measurement, value, gatherCols)
     setcolorder(SummaryDataLong, c("subject", "activity","measurement", "value"))
     SummaryDataLong[order(subject,activity,measurement,value)]
