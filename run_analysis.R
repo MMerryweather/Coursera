@@ -17,18 +17,14 @@ run_analysis = function(output = FALSE) {
     X_train = data.table(read.table(file = "UCI HAR Dataset/train/X_train.txt"))
 
     ## Add descriptive names to all our variables
-    setnames(
-        features, old = c("V1","V2"), new = c("featureColumn","featureName")
-    )
+    setnames(features, old = c("V1","V2"), new = c("featureColumn","featureName"))
     setnames(subject_test, old = names(subject_test), new = "subject")
     setnames(subject_train, old = names(subject_train), new = "subject")
     setnames(Y_test,old = names(Y_test), new = "activityID")
     setnames(Y_train,old = names(Y_train), new = "activityID")
     setnames(X_test, old = names(X_test), new = features$featureName)
     setnames(X_train, old = names(X_train), new = features$featureName)
-    setnames(
-        activityLabels, old = names(activityLabels), new = c("activityID","activity")
-    )
+    setnames(activityLabels, old = names(activityLabels), new = c("activityID","activity"))
 
     ## Create a logical vector for means and std dev then OR them together
     means = grepl(pattern = "-mean()",features$featureName, fixed = TRUE)
@@ -78,9 +74,7 @@ run_analysis = function(output = FALSE) {
 
     ## Output and return Tidy Data
     if (output == TRUE) {
-        write.table(
-            SummaryDataLong, file = "run_analysis.txt", append = FALSE, quote = FALSE, sep = ",", row.names = FALSE, col.names = TRUE
-        )
+        write.table(SummaryDataLong, file = "run_analysis.txt", append = FALSE, quote = FALSE, sep = ",", row.names = FALSE, col.names = TRUE)
     }
     SummaryDataLong
 }
