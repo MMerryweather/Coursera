@@ -1,0 +1,218 @@
+---
+title: "Week3 Lecture"
+author: "Mathew Merryweather"
+date: "27 July 2015"
+output: html_document
+---
+
+##Lapply
+Looping on the CLI
+
+* `lapply:` Loop over a list and evaluate a function on each element
+* `sapply:` Same as `lapply` but try to simplify results
+* `apply:` Apply a function of the margins of an array (useful for summaries)
+* `tapply:` Apply a function over subsets of a vector (table apply)
+* `mapply:` Multivariate version of lapply
+
+Auxillarilary function is `split`, used often in conjection with `lapply`. Splits objects into subpieces
+
+#lapply
+Three args:
+* A list `x`
+* A function `FUN`
+* Other arguments via its arguments
+
+`x` will be coerced to a list using as.list
+
+```{r}
+x = list(a = 1:5, b = rnorm(10))
+lapply(x, mean)
+#NB: Same names
+x$a
+x$b
+```
+
+```{r}
+x = 1:4
+lapply(x, runif)
+```
+Passing arguments
+```{r}
+x  = 1:4
+lapply(x, runif, min = 0, max = 10)
+```
+
+makes heavy use of *anonymous* functions
+
+```{r}
+x = list(a = matrix(1:4,2,2),b = matrix(1:6,3,2))
+x
+#No function to extract first col
+# so we will write one. elt is not found anywhere else
+lapply(x,function(elt) elt[,1])
+```
+
+##sapply
+lapply always returns list.
+If the result is a list where every element is length 1 then a vector is returned.
+If the result is a list where every elemtn is a vector of the same length (>1) a matrix is returned
+
+```{r}
+x = list(a = 1:4, b = rnorm(10), c= rnorm(20,1), d = rnorm(100,5))
+sapply(x,mean)
+```
+
+##apply
+often applied to rows or columns. Can take a general array
+```{r}
+str(apply)
+```
+notes:
+
+*`x` is an array
+* `MARGIN` is an integer vector indicating which margins should be retained
+* `FUN` is a function to be applied
+* `...` as before, to pass args
+
+
+```{r}
+x = matrix(rnorm(200),20,10)
+#Calculate for x, each columns mean
+# second dim is the cols (rows > cols)
+# Collapse the first dimension
+apply(x,2,mean)
+apply(x,1,sum)
+```
+
+Shortcuts: Much faster!
+
+* `rowSums` = `apply(x,1,sum)
+* `rowMeans` = apply(x,1,mean)
+* `colSums` = apply(x,2,sum)
+* `colMeans` = apply(x,2,mean)
+
+```{r}
+#Lets say you have a matrix
+# and you need to calculate the
+# 25th and 75th percentile for each row
+
+x = matrix(rnorm(200),20,10)
+#Remember, keep 1st rows > cols
+apply(x,1,quantile, probs = c(0.25, 0.75))
+```
+
+condensing higher dimensions
+```{r}
+x = array(rnorm(2 * 2 * 10), c(2,2,10))
+apply(x, c(1,2), mean)
+rowMeans(x,dims=2)
+```
+
+##Mapply
+If you needed elements from multiply lists (of equal length), instead of a for loop with two indexes, use `mapply`
+```{r}
+#first arg from first list
+mapply(rep,1:4,4:1)
+```
+
+```{r}
+noise = function(n,mean,sd){
+    rnorm(n,mean,sd)
+}
+noise(5,1,2)
+#Changing n and mean
+mapply(noise,1:5,1:5,2)
+```
+Good for instant vectorization
+
+##tapply
+Useful for apply to only a subset of items
+```{r}
+str(tapply)
+```
+
+Notes:
+
+* `x:` is a vector
+* `INDEX:` is a factor or a list of factors
+* `FUN:` function or summary statistic to be applied
+* `...` arguments to be passed to `FUN`
+* `simplify:` try and simplify the result to a vector or matrix
+
+```{r}
+x = c(rnorm(10),runif(10),rnorm(10,1))
+f = gl(3,10)
+f
+tapply(x, f, mean, simplify = FALSE)
+tapply(x, f, range)
+```
+
+***
+
+##split
+split takes a vector or other objects and splits it into groups determined by a factor or list of factors
+
+* `x` is a vector/list/dataframe
+* `f` is a factor
+* `drop` indicates whether empty factor levels should be dropped
+
+```{r}
+x = c(rnorm(10),runif(10),rnorm(10,1))
+f = gl(3,10)
+split(x,f)
+```
+
+A common pattern is `split` followed by `lapply`
+```{r}
+lapply(split(x,f),mean)
+#THATS FUCKING COOL
+```
+Analagous to `tapply` but `split` is much more useful for complex objects
+
+
+```{r}
+library(datasets)
+head(airquality)
+
+#summary for each month
+s = split(airquality,airquality$Month)
+# Anonymous function for colmeans of only 3 cols.
+lapply(s, function(x) colMeans(x[,c("Ozone","Solar.R","Wind")]))
+```
+
+Using `sapply` becuase `lapply` returns a list
+```{r}
+sapply(s, function(x) colMeans(x[,c("Ozone","Solar.R","Wind")]))
+sapply(s, function(x) colMeans(x[,c("Ozone","Solar.R","Wind")],na.rm = T))
+```
+
+splitting on more than one level
+```{r}
+x = rnorm(10)
+f1 = gl(2,5)
+f2 = gl(5,2)
+#Combines levels of first and second
+interaction(f1,f2)
+```
+
+```{r}
+#Calling interaction implicitly
+str(split(x,list(f1,f2)))
+#Drop empty levels created from splitting
+str(split(x,list(f1,f2),drop = TRUE))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

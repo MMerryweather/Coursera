@@ -1,0 +1,58 @@
+---
+title: "Debugging"
+author: "Mathew Merryweather"
+date: "27 July 2015"
+output: html_document
+---
+
+Three levels of indication
+
+1. `Messages` generic / diagnostic
+2. `warning` somethinf wrong but not fatal
+3. `error` fatal problem has occured
+
+All three are at a high level a `conditions` , condition to be triggered.
+
+`invisible` prevents a function from returning that functions value to the console. Still returned into the workspace but just not printed.
+
+useful functions:
+* `is.na`
+
+##Debugging Tools
+
+Five tools:
+
+1. `traceback`: prints out call stack
+2. `debug`: flags a function, allows to step through line by line
+3. `browser`: suspends the execution of a faction wherever its cALLED
+4. `trace`: insert debugging code into a func in specific places. Useful for someone elses package, usually to inject `browser`
+5. `recover`: modify error behaviour so you can browse the function call stack.
+
+
+```{r}
+mean(x)
+#must be called immediately after error
+traceback()
+```
+
+```{r}
+#Deeper Error
+lm(y ~ x)
+traceback()
+```
+
+```{r}
+debug(lm)
+lm(x ~ y)
+```
+
+```{r}
+options(error = recover)
+#GLOBAL SESSION VARIABLE
+read.csv("nosuchfile")
+# Will print call stack
+# Press number to browse function env
+```
+
+
+

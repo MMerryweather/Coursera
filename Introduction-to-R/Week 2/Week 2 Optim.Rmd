@@ -1,0 +1,77 @@
+---
+title: "Week 2 Optimisations"
+author: "Mathew Merryweather"
+date: "15 July 2015"
+output: html_document
+---
+
+### Application Optimization
+`optim`,`nlm`,`optimize` require that you pass a function whose argument is a vector of parameters.
+
+i.e. you pass these functions a function.
+
+But if it needs data as well, how do you do it?
+
+You write a constructr function, constructs objective function. All the data is in the objective functions environment.
+
+```{r eval = T}
+## NOTE:
+## Optimization  functions in R *minimize* functions
+## We need to use the negative log-likelihood to find the max of the log-likelihood
+
+make.negLogLik = function(data, fixed=c(F,F)){
+  params = fixed
+  function(p){
+    params[!fixed] = p
+    mu = params[1]
+    sigma = params[2]
+    
+    a = -0.5 * length(data)*log(2*pi*sigma^2)
+    b = -0.5 * sum((data - mu)^2)/ (sigma^2)
+    -(a+b)
+  }
+}
+```
+
+The fixed parameter tells us if we want to change or keep parameters
+```{r eval = T}
+set.seed(1); normals = rnorm(100,1,2) # mean 1, SD = 2
+#nLL = Negative Log Likelihood
+nLL = make.negLogLik(normals)
+nLL
+#Note Hexadecimal address
+ls(environment(nLL))
+```
+
+By using the consturctor function, the "data" variable is available, it doesn't need to be specified each time.
+
+```{r}
+optim(c(mu =0, sigma =1),nLL)$par
+```
+
+Close to originals of 1 and 2
+
+fixing $\sigma$ = 2
+```{r}
+#Single variable so can use optimize instead of optim
+nLL = make.negLogLik(normals, c(F,2))
+optimize(nLL,c(-1,3))$minimum
+```
+
+fixing $\mu$ = 1
+```{r}
+nLL = make.negLogLik(normals, c(1, F))
+optimize(nLL, c(1e-6,10))$minimum
+```
+
+Plotting the likelihood
+```{r eval = T}
+nLL = make.negLogLik(normals, c(1,F))
+x = seq(1.7,1.9, len = 100)
+y = sapply(x, nLL)
+plot(x, exp(-(y-min(y))), type = "l")
+
+```
+
+
+
