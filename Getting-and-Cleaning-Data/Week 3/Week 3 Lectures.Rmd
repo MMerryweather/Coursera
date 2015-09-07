@@ -1,0 +1,216 @@
+---
+title: "Week 3 Lectures"
+author: "Mathew Merryweather"
+date: "17 August 2015"
+output: html_document
+---
+
+## Subsetting
+
+```{r}
+set.seed(13435)
+x = data.frame("var1"=sample(1:5),"var2"=sample(6:10,"var3"=sample(11:15))) 
+```
+
+
+## Summarising
+```{r}
+if(!file.exists("./data")){dir.create("./data")}
+fileUrl = "https://data.baltimorecity.gov/api/views/k5ry-ef3g/rows.csv?accessType=DOWNLOAD"
+download.file(fileUrl,destfile = "./data/restaurants.csv",method="curl")
+data = read.csv(file = "./data/restaurants.csv")
+```
+
+summary functions
+```{r}
+summary(data)
+str(data)
+
+#Quantiles of quantitive variables
+quantile(data$councilDistrict,na.rm=T)
+quantile(data$councilDistrict,probs=c(0.5,0.75,0.9))
+```
+
+Make tables
+```{r}
+#deafault is to hide
+table(data$zipCode,useNA = "ifany")
+```
+
+```{r}
+# two way
+table(data$councilDistrict, data$zipCode)
+```
+
+Missing values
+```{r}
+sum(is.na(data$councilDistrict))
+any(is.na(data$councilDistrict))
+all(data$zipCode>0)
+
+# By row or column
+colSums(is.na(data))
+all(colSums(is.na(data))==0)
+```
+
+values with specific characteristics
+```{r}
+table(data$zipCode %in% c("21212"))
+table(data$zipCode %in% c("21212","21213"))
+
+## Creates logical vector
+head(data[data$zipCode %in% c("21212","21213"),],5)
+```
+
+Cross Tabs
+```{r}
+data("UCBAdmissions")
+DF = as.data.frame(UCBAdmissions)
+summary(DF)
+xt = xtabs(Freq ~ Gender + Admit, data=DF)
+xt
+```
+
+Flat Tables
+```{r}
+warpbreaks$replicate = rep(1:9,len = 54)
+
+# Breakdown by everything else
+xt = xtabs(breaks ~.,data=warpbreaks)
+xt
+ftable(xt)
+```
+
+Size of a data set
+```{r}
+fakeData = rnorm(1e5)
+object.size(fakeData)
+print(object.size(fakeData),units="Mb")
+```
+
+***
+
+## Reshaping Data
+The goal is tidy data
+
+1. Each varable forms a column
+2. Each observation forms a row
+3. Each table/file stores data about one kind of observation (e.g people, hospitals, states)
+
+start with reshaping
+```{r}
+library(reshape2)
+head(mtcars,5)
+## Assign rownames to have an explicit column
+mtcars$carname = rownames(mtcars)
+carMelt = melt(mtcars, id = c("carname","gear","cyl"),measure.vars = c("mpg","hp"))
+head(carMelt,3)
+```
+Casting data frames
+```{r message=FALSE}
+## Puts cylinders in rows, other vars in cols
+## Will default to length / count
+cylData = dcast(carMelt, cyl ~ variable)
+cylData
+```
+
+Averaging values
+```{r}
+## Summarise by mean, similar to Pivot Table
+cylData = dcast(carMelt, cyl ~ variable, mean)
+cylData
+```
+
+```{r}
+head(InsectSprays)
+## Sum of the counts of each spray
+## Apply along the index of Sparays, sum the count
+tapply(InsectSprays$count,InsectSprays$spray,sum)
+```
+
+Using the split-apply-combine method
+```{r}
+## SPLIT into a list
+spIns = split(InsectSprays$count,InsectSprays$spray)
+spIns
+
+## APPLY sums for each element of the list
+sprCount = lapply(spIns, sum)
+sprCount
+
+## COMBINE the results into a result 
+unlist(sprCount)
+## OR in fewer steps (Apply + Combine)
+sapply(spIns, sum)
+```
+
+Using plyr
+```{r}
+library(plyr)
+## SPLIT APPLY COMBINE in one function
+## Take insect sprays, summarize for each .(spray)
+## Summarize this var
+## How? by sum of the counts
+ddply(InsectSprays,.(spray),summarize,sum=sum(count))
+```
+
+Nice way of creating summary variables
+```{r}
+## Creating a variable that has the means for each spray in each variable.
+spraySums = ddply(InsectSprays,.(spray),summarize,sum=ave(count,FUN = sum))
+dim(spraySums)
+## By passing ave with the a subfunction of the sum
+## See the sum of A for each variable
+```
+
+## Managing data with dplyr
+
+* arrange
+* filter
+* select
+* mutate
+* rename
+
+dplyr is the optimized and distilled dplyr
+Just simpler and faster
+
+dplyr verbs
+
+* `select:` return a subset of the cols in a df
+* `filter:` extract a subset of rows from a df based on logical conditions
+* `arrange:` reorder rows of a df
+* `rename:` rename variables in a df
+* `mutate:` add new vars/cols or transform existing
+* `summarise:` generates summary statistics in the data frame
+
+Properties:
+1. First argument is *always* a data frame
+2. the subsequent args describe what to do with it. Don't have to use the $ operator, just names
+3. The result is *always* a new data frame
+
+Hence the importance of usefully named and annotated data frames
+
+
+## Working with dplyr
+`%>%` is the pipeline operator, implicitly passes resulting dataframe to next function. Allows you to chain together functions without temporary variables
+
+`dplyr` grammar can also be used with `data.table` or `SQL` as backends.
+
+
+## Merging Data
+Matching based on ID
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,136 @@
+---
+title: "Week 1 Quiz"
+author: "Mathew Merryweather"
+date: "10 August 2015"
+output: html_document
+---
+
+#### Q1
+The American Community Survey distributes downloadable data about United States communities. Download the 2006 microdata survey about housing for the state of Idaho using download.file() from here: 
+
+https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv 
+
+and load the data into R. The code book, describing the variable names is here: 
+
+https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FPUMSDataDict06.pdf 
+
+How many properties are worth $1,000,000 or more?
+```{r}
+filePath = "Q1.csv"
+if(!file.exists(filePath))
+{
+    fileURL = "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv"
+    download.file(fileURL,filePath, method = "curl")   
+}
+df = read.csv(filePath)
+val = df$VAL
+Q1 = sum(val==24, na.rm = T)
+Q1
+```
+
+#### Q2
+Use the data you loaded from Question 1. Consider the variable FES in the code book. Which of the "tidy data" principles does this variable violate?
+```{r}
+filePath = "Q1.csv"
+if(!file.exists(filePath))
+{
+    fileURL = "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv"
+    download.file(fileURL,filePath, method = "curl")   
+}
+df = read.csv(filePath)
+val = df$FES
+str(val)
+#Tidy data has one variable per column.
+```
+
+#### Q3
+Download the Excel spreadsheet on Natural Gas Aquisition Program here: 
+
+https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FDATA.gov_NGAP.xlsx 
+
+Read rows 18-23 and columns 7-15 into R and assign the result to a variable called:
+```{r eval=F}
+dat
+```
+What is the value of:
+```{r eval=F}
+sum(dat$Zip*dat$Ext,na.rm=T) 
+```
+```{r eval = T}
+filePath = "Q3.xlsx"
+if(!file.exists(filePath))
+{
+    fileURL = "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FDATA.gov_NGAP.xlsx"
+    download.file(fileURL,filePath, method = "curl")   
+}
+
+rowIndex = 18:23
+colIndex = 7:15
+library(xlsx)
+dat = read.xlsx(filePath, rowIndex = rowIndex, colIndex = colIndex, sheetIndex = 1)
+val =  sum(dat$Zip*dat$Ext,na.rm=T) 
+val
+```
+
+#### Q4
+Read the XML data on Baltimore restaurants from here: 
+
+https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Frestaurants.xml 
+
+How many restaurants have zipcode 21231?
+
+```{r}
+library(XML)
+
+filePath = "Q4.xml"
+if(!file.exists(filePath))
+{
+    fileURL = "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Frestaurants.xml"
+    download.file(fileURL,filePath, method = "curl")   
+}
+doc = xmlTreeParse(filePath, useInternal = T)
+rootNode = xmlRoot(doc)
+df = xpathSApply(rootNode,"//zipcode",xmlValue)
+zipTarget = 21231
+Q4 = sum(df == zipTarget, na.rm = T)
+Q4
+```
+
+#### Q5
+The American Community Survey distributes downloadable data about United States communities. Download the 2006 microdata survey about housing for the state of Idaho using download.file() from here: 
+
+https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06pid.csv 
+
+using the fread() command load the data into an R object
+```{r eval = F}
+ DT 
+```
+
+Which of the following is the fastest way to calculate the average value of the variable
+```{r eval = F}
+pwgtp15 
+```
+
+broken down by sex using the data.table package?
+
+```{r}
+library(data.table)
+filePath = "Q5.csv"
+if(!file.exists(filePath))
+{
+    fileURL = "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06pid.csv"
+    download.file(fileURL,filePath, method = "curl")   
+}
+DT = fread(filePath)
+x1 = system.time(mean(DT$pwgtp15,by=DT$SEX))
+x2 = system.time(DT[,mean(pwgtp15),by=SEX])
+x3 = system.time(tapply(DT$pwgtp15,DT$SEX,mean))
+x4 = system.time(mean(DT[DT$SEX==1,]$pwgtp15)); mean(DT[DT$SEX==2,]$pwgtp15)
+x5 = system.time(sapply(split(DT$pwgtp15,DT$SEX),mean))
+times = rbind(x1,x2,x3,x4,x5)
+times
+```
+
+ 
+
+

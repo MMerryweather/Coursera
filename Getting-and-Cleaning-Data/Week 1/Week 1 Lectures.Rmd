@@ -1,0 +1,346 @@
+---
+title: "Week1 Lectures"
+author: "Mathew Merryweather"
+date: "4 August 2015"
+output: html_document
+---
+
+#### Raw and Processed Data
+Data belongs to sets of variables in qualitative or quantative values.
+
+**Raw Data**
+
+* Original source
+* Often hard to use for data analysis
+* Data analysis *includes* processing
+
+**Processed Data**
+
+* Data that is ready for analysis
+* includes merging, subsetting and transforming
+* Standards may exist
+* All steps should be recorded
+
+An example of a processing pipeline: Illumina Genetics.
+
+1. Fragments of DNA bound to a slide
+2. Amplify the sequence
+3. Read nucleotides by synthesis image files
+
+Which one is *raw*?
+
+***
+
+## The Components of Tidy Data
+
+Four things you need:
+
+1. The raw data
+2. A tidy data set
+3. A code book describing each variable and its value
+4. Explicit and exact recipe you used to go from 1 > 2,3
+
+*You know the raw data is in the right format if you*
+
+1. Ran no software on the data
+2. Did not manipulate any of the numbers in the data
+3. You did not remove any data from the data set
+4. You did not summarize the data in any way
+
+Excel files, JSON, Binary Files, Hand entered numbers are all *raw* data.
+
+### The Tidy Data
+
+1. Each variable you measure should be in one column
+2. Each different observation of that variable should be in a different row
+3. There should be one table for each "kind" of variable
+4. If you have multiple tables, they should include a column that allows them to be linked
+
+*important tips*
+
+* Include a row at the top of each file with the variable names.
+* Always make variable names explicit
+* General data should be saved in one file per table.
+
+## The Code Book
+
+1. Info about the variables (units) not contained in the tidy data
+2. Info about summary choices you made
+3. Info about experimental study design
+
+*important tips*
+
+* Text / markdown file
+* Needs a study design section,
+    - Thorough description of how you collected the data
+* Must have a code book section that describes each variable and its units
+
+## Instruction list
+
+* Your script
+* Input for the script is the raw data
+* Output is processed, Tidy data
+* There are no parameters to the script
+
+DON'T BE A REINHART & ROGOFF!! 
+
+***
+
+## Downloading Files
+
+Get/set your working directory
+
+* `getwd()` and `setwd()`
+* Move down `setwd("./data")`
+* Move up `setwd("../")`
+
+## Checking for directories
+
+* `file.exists("directoryName")`
+* `dir.create("directoryName")`
+
+```{r eval = F}
+if (!file.exists("data")){
+    dir.create("data")
+}
+```
+
+## Getting data from the net
+
+* `download.file()`
+* Important parameters
+    - `url`, `destfile`, `method`
+* useful for tab-delimited and csv
+* `method` useful with https
+
+`curl` is necessary if on mac
+Important to mention the date the data was downloaded.
+
+## Reading Local Flat Files
+
+text, tsvs and csvs
+
+* `read.table` : reads to RAM
+* `read.csv`
+* `read.csv2`
+
+try using `quote=""` to resolve a lot of issues.
+
+## Reading Excel Files
+
+```{r eval = F}
+library(xlsx)
+cameraData = read.xlsx("./data/cameras.xlsx", sheetIndex=1, header = T)
+head(cameraData)
+```
+
+```{r eval = F}
+# Reading specific rows and cols
+colIndex = 2:3
+rowIndex = 1:4
+library(xlsx)
+cameraDataSubset = read.xlsx("./data/cameras.xlsx", sheetIndex=1, colIndex = colIndex, rowIndex = rowIndex)
+cameraDataSubset
+```
+
+`write.xlsx` to write out
+`read.xlsx2` is much faster for who sheets
+XLConnect is probably better for large data analysis, vignette good for beginners.
+
+## Reading XML
+
+Extracting XML is the basis for most web scraping
+composed of:
+
+* Markup: Labels that give structure
+* Content: the actually typed text
+
+Tags apply to text to give them structure
+
+* start tags `<section>`
+* end tags `</section>`
+* empty tags `<line-break />` 
+
+Elements are specific examples of tags
+
+* `<Greeting> Hello, world </Greeting>`
+
+Attributes are components of the label
+
+* `<img src = "jeff.jpg" alt="instructor"/>`
+* `<step number="3"> Connect A to B. </step>`
+
+```{r eval = T}
+library(XML)
+fileUrl = "http://ww.w3schools.com/xml/simple.xml"
+doc = xmlTreeParse(fileUrl, useInternal = T)
+# wrapper for whole tree
+rootNode = xmlRoot(doc)
+xmlName(rootNode)
+
+# All nested nodes
+names(rootNode)
+# All within food elements
+
+#Looking at first component
+rootNode[[1]]
+
+# keeping drilling down
+rootNode[[1]][[1]]
+
+#Loop through all elements of rootNode and print value
+xmlSApply(rootNode,xmlValue)
+```
+
+You can use Xpath to get to data
+
+* `/node` Top Level node
+* `//node` Node at any level
+* `node[@attr-name]` Node with an attribute name
+* `node[@attr-name="bob"]` Node with attribute name attr-name='bob
+
+```{r}
+# Print all elements with node of `name`
+xpathSApply(rootNode,"//name",xmlValue)
+
+# Print prices
+xpathSApply(rootNode,"//price",xmlValue)
+```
+
+Extract content by attributes
+```{r}
+fileUrl = "http://espn.go.com/nfl/team/_/name/bal/baltimore-ravens"
+doc = htmlTreeParse(fileUrl, useInternal = T)
+scores = xpathSApply(doc,"//li[@class='score']",xmlValue)
+teams = xpathSApply(doc,"//li[@class='team-name']",xmlValue)
+
+```
+
+## Reading JSON
+
+Java Script Object Notation
+Lightweight
+Similar to XML but different
+
+Nice package called `jsonlite`
+
+```{r}
+library(jsonlite)
+jsonData = fromJSON("https://api.github.com/users/jtleek/repos")
+# Outputs data frame
+names(jsonData)
+
+#Dataframe within dataframe
+names(jsonData$owner)
+
+#Continues deeper
+```
+
+writing to JSON
+```{r}
+myjson = toJSON(iris,pretty = T)
+cat(myjson)
+
+iris2 = fromJSON(myjson)
+head(iris2)
+```
+
+## Using Data.table
+Much faster at subsetting, group and updating than data.frames but new syntax
+```{r}
+library(data.table)
+## Classic way of making data frame
+DF = data.frame(x=rnorm(9),y=rep(c("a","b","c"),each=3),z=rnorm(9))
+head(DF,3)
+```
+
+```{r}
+## Better way
+DT = data.table(x=rnorm(9),y=rep(c("a","b","c"),each=3),z=rnorm(9))
+head(DT,3)
+```
+
+to see all the `tables` in memory
+```{r}
+tables()
+```
+
+subsetting rows
+```{r}
+DT[2,]
+
+DT[DT$y=a,]
+
+# subsets based on rows if only one index supplied
+DT[c(2,3)]
+```
+
+```{r}
+## subsetting columns is different
+## uses expressions.
+## The argument you pass after the colon is called an expression
+## In R an expression is a collection of statements enclosed in curly brackets
+
+{
+    x = 1
+    y = 2
+}
+ k = {print(10);5}
+ print(k)
+```
+
+calculating value for variables with expressions
+```{r}
+# No Quotes
+DT[,list(mean(x),sum(z))]
+ 
+# Table of y vals, any function can be passed
+DT[,table(y)]
+
+## Adding new cols
+DT[,w:=z^2]
+
+## Just be careful because copies are not made across 
+```
+
+multiple operations
+```{r}
+## Using expressions
+## Make a temp var then take log 2 of it + 5
+## Only the last expression returned
+DT[,m:={tmp = (x+z); log2(tmp+5)}]
+```
+
+plyr like operations
+```{r}
+DT[,a:=x>0]
+## Grouped by variable a
+DT[,b:=mean(x+w),by=a]
+```
+
+
+special variables
+`.N` an integer containing the number of instances
+
+```{r}
+set.seed(123);
+DT = data.table(x=sample(letters[1:3],1E5,TRUE))
+# Count number of times each occurs, grouped by x
+DT[,.N,by=x]
+```
+
+Keys:
+Allows for rapid subsetting
+
+```{r}
+DT = data.table(x=rep(letters[1:3],each=100),y=rnorm(300))
+setkey(DT,x)
+head(DT['a'])
+```
+
+
+
+
+
+
+
