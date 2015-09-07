@@ -1,0 +1,225 @@
+---
+title: "Week 4 Lectures"
+author: "Mathew Merryweather"
+date: "30 July 2015"
+output: html_document
+---
+
+#### The Str Function
+A diagnostic function, alternative to `summary`
+Compactly display lists. One line per basic object.
+"Whats in this object?"
+```{r}
+str(str)
+str(lm)
+```
+
+```{r}
+x = rnorm(100,2,4)
+summary(x)
+str(x)
+
+#Factor variable
+f = gl(40,10)
+str(f)
+```
+
+```{r}
+library(datasets)
+head(airquality)
+str(airquality)
+```
+
+```{r}
+m  = matrix(rnorm(100),10,10)
+str(m)
+```
+
+```{r}
+s = split(airquality, airquality$Month)
+str(s)
+```
+
+***
+
+## Simulation
+
+#### Generating Random Numbers
+functions for probability distributions in R
+
+* `rnorm`: Generate random Normal variates with a given mean and standard of deviation
+* `dnorm`: evaluate the normal probability density (with a given mean/SD) at a point (or a vector of points)
+* `pnorm`: evaluate the cumulative distribution function for a normal distribution
+* `rpois`: Generate random Poisson variates with a given rate (integers)
+
+PDFs usually have four functions associated with them
+
+* `d` for density
+* `r` for random number generation
+* `p` for cumulative distribution
+* `q` for quantile functions
+
+i.e. `dgamma`, `pgamma` etc.
+
+All require mean and SD, if none provided then Standard Distribution
+```{r eval = FALSE}
+#Often need log of density
+dnorm(x, mean = 0, sd = 1, log = FALSE)
+#Also log scale option
+#Lower tail = Left, 
+#Lower.Tail = False = right side
+pnorm(q, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE)
+qnorm(p, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE)
+rnorm(n, mean = 0, sd = 1)
+```
+
+if $\Phi$ is the CDF for a standard normal distribution, then `pnorm(q)` = $\Phi$`(q)` and `qnorm(p)` = $\Phi^-1$ `(p)`.
+
+```{r}
+#ALWAY SET SEED!!!
+set.seed(1)
+x = rnorm(10)
+x
+x = rnorm(10, 20,2)
+x
+summary(x)
+```
+
+Always use the `set.seed` function to ensure reproducibility
+```{r}
+set.seed(1)
+rnorm(5)
+rnorm(5)
+set.seed(1)
+rnorm(5)
+```
+
+Generating Poisson Data
+
+```{r}
+rpois(10,1)
+rpois(10,2)
+rpois(10,20)
+
+# Mean = Rate
+
+# Probability that a poisson value is less than 2 when I have a rate of 2?
+# Use Cumulative distribution
+ppois(2,2) ## Pr(x <= 2)
+ppois(4,2) ## Pr(x <= 4)
+ppois(6,2) ## Pr(x <= 6)
+```
+
+#### Simulating a linear model
+Suppose we want to simulate from the following Linear Model
+$$
+y = \beta_{0} + \beta_{1}x + \epsilon
+$$
+
+Where $\epsilon \sim \mathcal{N} (0,2^2)$ Assume $x \sim \mathcal{N} (0,1^{2})$, $\beta_{0} = 0.5$ and $\beta_{1} = 2$
+
+```{r}
+# Important
+set.seed(20)
+# Predictor
+x = rnorm(100)
+# Errpr
+e = rnorm(100,0,2)
+# Output
+y = 0.5 + 2 * x + e
+summary(y)
+plot(x,y)
+```
+
+what if `x` is a binary?
+perhaps gender or taken medication vs not?
+
+```{r}
+set.seed(10)
+# 100 variables, size and probability
+# i.e Male vs Female
+x= rbinom(100,1,0.5)
+e = rnorm(100,0,2)
+y = 0.5 + 2 * x + e
+summary(y)
+plot(x,y)
+```
+
+Suppose we want to simulate from a Poisson model where
+
+$Y \sim Poisson(\mu)$
+
+$log(\mu) = \beta_{0} + \beta_{1}x$
+
+and $\beta_{0} = 0.5$ and $\beta_{1} = 0.3$
+
+```{r}
+set.seed(1)
+# Outcome variables for count data
+# Error distribution is now a Poisson
+
+#Predictor
+x= rnorm(100)
+#Linear Predictor
+log.mu = 0.5 + 0.3 * x
+#To get mean, we need exponent of log.mu
+y = rpois(100,exp(log.mu))
+
+summary(y)
+plot(x,y)
+```
+
+***
+
+#### Random Sampling
+`sample` function draws randomly from vector of numbers
+
+```{r}
+set.seed(1)
+#No replacement
+sample(1:10,4)
+sample(1:10,4)
+
+sample(letters,5)
+sample(1:10) ## Permutation
+
+sample(1:10, replace = T) ## Smaple with replacement
+```
+
+***
+
+#### Profiler
+Useful for identifying bottleknecks and identifying slow points
+Other tools also help to optimize software.
+Don't think about it at first. (Knuths Truths)
+Design first then optimize
+Collect data, don't guess!
+
+Using system.time()
+Returns time to evaluate expression in seconds
+two types of time:
+
+* *User Time* = CPU Time
+* *Elapsed Time* = "wall clock time"
+
+Elapsed time can be greater if CPU spends a lot of time waiting around.
+Elapsed time can be shorter if you have multiple cores.
+
+Using `Rprof()`
+The summaryRprof() function summarizes the output from `Rprof`
+
+DO NOT USE `system.time()` and `Rprof` together.
+
+Queries the call stack at a sampling interval (default 0.02 s)
+
+Two methods of harnessing `summaryRprof`
+
+* `by.total` total run time 
+* `by.self` subtracts out time below in the call stack.
+
+
+
+
+
+
+
