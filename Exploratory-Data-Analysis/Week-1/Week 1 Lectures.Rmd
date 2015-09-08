@@ -69,6 +69,43 @@ More or less for yourself
 * Density Plot 
 * Barplot `barplot` for categorical variables
  
+## Simple summaries of Data: 2D
 
+2 dimensions
+
+* Multiple/overlayed 1-D plots (`lattice`/`ggplot2`)
+* Scatter plots
+* Smooth Scatter plots
+
+>2 dimensions
+* overlayed 2-D plots: `coplots`
+* user colour / shape
+* Spinning plots
+
+multiple histograms
+```{r eval = F}
+par(mfrow = c(2,1), mar = c(4,4,2,1))
+hist(subset(pollution,region=="east")$pm25)
+hist(subset(pollution,region=="west")$pm25)
+```
+
+scatterplot
+```{r eval = F}
+with(pollution,plot(latitude,pm25))
+abline(h=12,lwd=2,lty=2)
+```
+
+scatter with colour
+```{r eval = F}
+with(pollution,plot(latitude,pm25,col=region))
+abline(h=12,lwd=2,lty=2)
+```
+
+multiple scatterplots
+```{r eval = F}
+par(mfrow = c(1,2), mar = c(5,4,2,1))
+with(subset(pollution,region=="West"),plot(latitude, pm25, main = "West"))
+with(subset(pollution,region=="east"),plot(latitude, pm25, main = "East"))
+```
 
 
