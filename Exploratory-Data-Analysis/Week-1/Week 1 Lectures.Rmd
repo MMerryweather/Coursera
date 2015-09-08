@@ -1,1 +1,74 @@
-Test
+---
+title: "Week-1-Lectures"
+author: "Mathew Merryweather"
+date: "8 September 2015"
+output: html_document
+---
+
+## Principles of analytic graphs
+general rules (Tuftian)
+
+Principle 1
+
+* Show comparisons (usually basline or control)
+* evidence is relative to another competeing hypothesis
+* "Compared to what?"
+
+Principle 2
+
+* show causality, mechanism, explanation or systematic structure
+* what is your causual framework for thinking about a question?
+* how is the system operating?
+* Graph 1 = Outcome, Graph 2 = Change in input
+
+Principle 3
+
+* Show multivariate data
+* Real world is multivariate
+* Need to escape flatland
+* Multivariate analysis can have a very large effect (Symptoms effect)
+
+Principle 4
+
+* Integration of evidence
+* Completely integrate words, numbers etc
+* Make use of many modes
+* Dont let the tools drive the analysis
+
+Principle 5
+
+* Describe and document the evidence with labels, scales and source
+* Include code
+
+Principal 6
+
+* Content is king!
+* Quality, relevance and integrity of their content.
+
+## Exploratory Graphs
+
+More or less for yourself
+
+* To understand data properties
+* finding patterns
+* Debug analysis
+* proposing modelling strategies
+
+* Made quickly
+* large number,
+* goal is personal understanding
+* Colour / size used for info
+
+## Simple summaries of Data: 1D
+
+* Six-number summary `summary`
+* Boxplots `boxplot`
+    * `abline` to include a line (`h` or `v` for the direction)
+* Histograms `hist` + `rug` + `abline`
+    * Look at `breaks` argument
+* Density Plot 
+* Barplot `barplot` for categorical variables
+ 
+
+
+
