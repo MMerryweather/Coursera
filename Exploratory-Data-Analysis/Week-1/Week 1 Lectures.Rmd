@@ -181,4 +181,41 @@ global parameters using `par`
 * `oma`: outer margin size
 * `mfrow`: number of plots per row, col 
 
+## Base Plotting Functions
+
+* `plot`: Scatter plot
+* `lines`: connects dots of scatter plot
+* `points`: add points to a plot
+* `text`: add text labels to a plot
+* `title`: adds annotations
+* `mtext`: adds arbitary text to margins
+* `axis`: axis ticks / labels
+
+```{r}
+with(airquality,plot(Wind,Ozone,main = "Ozone and Wind in NYC"))
+with(subset(airquality, Month == 5), points(Wind,Ozone, col = "blue"))
+```
+
+```{r eval = F}
+plot(type = "n")
+## Doesn't draw graph
+legend("topright",pch=1,col=c("blue","red"),legend = c("May","Other"))
+```
+
+Base Plot with Regression Line
+```{r}
+with(airquality, plot(Wind,Ozone, main = "Ozone and Wind in NYC", pch = 20))
+model = lm(Ozone ~ Wind, airquality)
+abline(model, lwd = 2)
+```
+
+Multiple Base Plots
+```{r}
+par(mfrow=c(1,2), oma = c(0,0,2,0))
+with(airquality,{
+    plot(Wind, Ozone, main = "Ozone and Wind")
+    plot(Solar.R, Ozone, main = "Ozone and Solar Radiation")
+    mtext("Ozone and Weather in NYC", outer = TRUE)
+})
+```
 
