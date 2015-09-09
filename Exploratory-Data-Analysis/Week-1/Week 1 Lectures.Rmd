@@ -108,4 +108,77 @@ with(subset(pollution,region=="West"),plot(latitude, pm25, main = "West"))
 with(subset(pollution,region=="east"),plot(latitude, pm25, main = "East"))
 ```
 
+## Base Plotting System in R
+
+Core is contained in two packages
+
+* `graphics`: `plot`,`hist`,`boxplot`
+* `grDevices`: X11, PDF, PNG
+
+Lattice is implemented
+
+* `lattice`: trellis graphics, `xyplot`, `bwplot`, `levelplot`
+* `grid`: Lattice is built off `grid`. rarely called directly
+
+**Process of making a plot**
+
+Questions
+
+* the audience?
+    * quality
+    * print or web?
+* amount of data?
+* Dynamic resize
+
+System to use? Cannot be mixed
+* `base`: piece meal, assembled
+* `lattice`: single function call
+* `ggplot2`: mix of both
+
+Focus on base for screens
+
+**Base**
+
+1. initialize a new plot
+2. Annotating existing plot
+
+calling `plot(x,y)` etc will launch graphics devices if ones not already open.
+depends on data passed to it.
+Default type has lots of params
+
+```{r}
+library(datasets)
+hist(airquality$Ozone)
+```
+
+scatterplot
+
+```{r}
+library(datasets)
+with(airquality, plot(Wind, Ozone))
+```
+
+Boxplots
+
+```{r}
+airquality = transform(airquality, Month = factor(Month))
+boxplot(Ozone ~ Month, airquality, xlab = "Month", ylab = "Ozone (ppb)")
+```
+
+Key parameters for base
+
+* `pch`: Plotting Character
+* `lty`: Line Type
+* `lwd`: Line Width
+* `col`: color (Contrast with `colors()`)
+* `xlab`
+* `ylab`
+
+global parameters using `par`
+* `las`: label orientation
+* `bg`: background col
+* `mar`: margin size
+* `oma`: outer margin size
+* `mfrow`: number of plots per row, col 
+
 
