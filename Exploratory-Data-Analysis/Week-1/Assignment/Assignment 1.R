@@ -26,11 +26,21 @@ library(dplyr)
 library(lubridate)
 
 filePath = "household_power_consumption.txt"
-if(!file.exists(filePath)){
+if (!file.exists(filePath)) {
     url = "https://d396qusza40orc.cloudfront.net/exdata%2Fdata%2Fhousehold_power_consumption.zip"
-    download.file(url = url,destfile = "data.zip",method="curl")
+    download.file(url = url,destfile = "data.zip",method = "curl")
     unzip("data.zip",overwrite = TRUE)
 }
-## Want to use fread from data.table but na.strings parameter borks out.
+
+## Wanted to use fread from data.table but na.strings parameter borks out.
 ## See: http://stackoverflow.com/questions/15784138/bad-interpretation-of-n-a-using-fread
-data = read.table(file = filePath,header=T,sep=";",na.strings = "?")
+data = read.table(
+    file = filePath,header = T,sep = ";",na.strings = "?"
+)
+data = mutate(data,DateTime = paste(Date,Time,sep=" "))
+data$DateTime = as.POSIXct(strptime(data$DateTime,format = "%Y-%m-%d %H:%M:%S"))
+
+## Starting and ending dates of the period we are interested in.
+dateVector = as.POSIXct(strptime(c("2007-02-01","2007-02-02"),format = "%Y-%m-%d"))
+filteredData = dplyr::filter(data,DateTime >= dateVector[1] &
+                            DateTime < dateVector[2])
