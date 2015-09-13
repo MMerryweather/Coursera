@@ -219,3 +219,21 @@ with(airquality,{
 })
 ```
 
+## DEMO
+```{r}
+x = rnorm(100)
+hist(x)
+```
+
+```{r}
+# Scatter plot
+y = rnorm(100)
+plot(x,y)
+# Note different axis labels
+par(mar = c(5,4,2,2))
+plot(x,y, pch = 20)
+#example(points)
+title("Scatterplot")
+text(-2,-2,"Label")
+```
+
