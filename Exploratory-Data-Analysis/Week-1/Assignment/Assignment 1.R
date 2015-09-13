@@ -41,6 +41,7 @@ data = mutate(data,DateTime = paste(Date,Time,sep=" "))
 data$DateTime = as.POSIXct(strptime(data$DateTime,format = "%Y-%m-%d %H:%M:%S"))
 
 ## Starting and ending dates of the period we are interested in.
-dateVector = as.POSIXct(strptime(c("2007-02-01","2007-02-02"),format = "%Y-%m-%d"))
+dateVector = as.POSIXct(strptime(c("2007-02-01","2007-02-03"),format = "%Y-%m-%d"))
 filteredData = dplyr::filter(data,DateTime >= dateVector[1] &
                             DateTime < dateVector[2])
+
